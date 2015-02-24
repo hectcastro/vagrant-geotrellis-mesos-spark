@@ -20,7 +20,9 @@ mounts:
 
 runcmd:
  - [ chown, hdfs, "/media/ephemeral0" ]
- - [ chgrp, hdfs, "/media/ephemeral0" ]
+ - [ chgrp, hadoop, "/media/ephemeral0" ]
+ - [ chmod, 770, "/media/ephemeral0" ]
  - [ chown, hdfs, "/media/ephemeral1" ]
- - [ chgrp, hdfs, "/media/ephemeral1" ]
+ - [ chgrp, hadoop, "/media/ephemeral1" ]
+ - [ chmod, 770, "/media/ephemeral1" ]
  - [ service, hadoop-hdfs-datanode, restart ]
