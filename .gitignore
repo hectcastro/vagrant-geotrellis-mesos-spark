@@ -1,5 +1,9 @@
 .vagrant
 
+\#*#
+*~
+.#*
+
 *.pyc
 
 deployment/troposphere/*.json
@@ -8,3 +12,8 @@ deployment/ansible/roles/*
 
 *.pem
 /deployment/geotrellis-cluster.config
+
+# Cloud Config files that are created via templates.
+deployment/cloud-config/packer-accumulo-leader.yml
+deployment/cloud-config/accumulo-leader.yml
+

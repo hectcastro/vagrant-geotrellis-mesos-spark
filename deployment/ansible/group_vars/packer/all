@@ -1,4 +1,6 @@
 ---
+cluster_domain: "ksat-demo.internal"
+
 ntp_servers:
   - 0.amazon.pool.ntp.org
   - 1.amazon.pool.ntp.org

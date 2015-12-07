@@ -20,7 +20,8 @@ def create_ami(machine_type, aws_profile, gt_config, **kwargs):
     run_packer(machine_type,
                aws_profile=aws_profile,
                region=gt_config['Region'],
-               stack_type=gt_config['StackType'])
+               stack_type=gt_config['StackType'],
+               cluster_domain=gt_config['PrivateHostedZoneName'])
 
 
 def main():

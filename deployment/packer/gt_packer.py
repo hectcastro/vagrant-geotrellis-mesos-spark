@@ -8,6 +8,8 @@ import logging
 import urllib2
 import csv
 
+from jinja2 import Template
+
 LOGGER = logging.getLogger('geotrellis_spark')
 
 
@@ -46,14 +48,20 @@ def update_ansible_roles():
     subprocess.check_call(ansible_command, cwd=ansible_dir)
 
 
-def run_packer(machine_type, aws_profile, region, stack_type):
+def run_packer(machine_type, aws_profile, region, stack_type, cluster_domain):
     """Function to run packer
 
     Args:
       machine_type (str): type of machine to build (e.g. mesos-leader, mesos-follower)
       aws_profile (str): aws profile name to use for authentication
       stack_type (str): type of stack this machine is for (e.g. accumulo geotrellis cluster)
+      cluster_domain (str): domain for the cluster, which is used in the cloud config template
     """
+    
+    # Render the packer leader cloud-config template
+    template = Template(open("cloud-config/packer-%s-leader.template" % stack_type).read())
+    rendered = template.render(cluster_domain=cluster_domain)
+    open("cloud-config/packer-%s-leader.yml" % stack_type, 'w').write(rendered)
 
     # credentials
     aws_dir = os.path.expanduser('~/.aws')
@@ -74,7 +82,7 @@ def run_packer(machine_type, aws_profile, region, stack_type):
     env['AWS_SECRET_ACCESS_KEY'] = aws_secret_access_key
     packer_template_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'template.js')
     LOGGER.info('Creating %s AMI in %s region', machine_type, region)
-    packer_command = ['packer', 'build',
+    packer_command = ['packer', 'build', #'-debug',
                       '-var', 'aws_region={}'.format(region),
                       '-var', 'aws_ubuntu_ami={}'.format(aws_ubuntu_ami),
                       '-var', 'stack_type={}'.format(stack_type),

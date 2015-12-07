@@ -16,6 +16,7 @@ EC2_INSTANCE_TYPES = [
     'i2.8xlarge',
     'm2.4xlarge',
     'm3.large',
+    'm3.xlarge',
     'm3.2xlarge',
     'r3.large',
     'r3.2xlarge',

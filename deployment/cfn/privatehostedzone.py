@@ -41,4 +41,4 @@ class R53PrivateHostedZone(CustomActionNode):
                                               vpc_id=self.get_input('VpcId'),
                                               vpc_region=self.region)
         hosted_zone_id = hosted_zone['CreateHostedZoneResponse']['HostedZone']['Id']
-        self.stack_outputs = {'PrivateHostedZoneId': hosted_zone_id.split('/')[-1]}
+        self.stack_outputs = {'PrivateHostedZoneId': hosted_zone_id.split('/')[-1] }

@@ -9,6 +9,7 @@ from troposphere import (
 import template_utils as utils
 import troposphere.route53 as r53
 
+from jinja2 import Template
 
 class MesosLeader(utils.GTStackNode):
     """Leader stack"""
@@ -20,6 +21,7 @@ class MesosLeader(utils.GTStackNode):
         'KeyName': ['global:KeyName'],
         'IPAccess': ['global:IPAccess'],
         'Region': ['global:Region'],
+        'PrivateHostedZoneName': ['global:PrivateHostedZoneName'],
         'PrivateHostedZoneId': ['R53PrivateHostedZone:PrivateHostedZoneId'],
         'MesosLeaderAMI': ['global:MesosLeaderAMI'],
         'MesosLeaderInstanceProfile': ['global:MesosLeaderInstanceProfile'],
@@ -40,6 +42,11 @@ class MesosLeader(utils.GTStackNode):
 
     def set_up_stack(self):
         self.region = self.get_input('Region')
+
+        # Render the leader cloud-config template
+        template = Template(open("cloud-config/%s-leader.template" % self.get_input('StackType')).read())
+        leader_cloud_config = template.render(cluster_domain=self.get_input('PrivateHostedZoneName'))
+
 
         vpc_param = self.add_parameter(Parameter(
             'VpcId', Type='String', Description='Name of an existing VPC'
@@ -143,7 +150,7 @@ class MesosLeader(utils.GTStackNode):
                     DeleteOnTermination=True,
                 )
             ],
-            UserData=Base64(utils.read_file('cloud-config/%s-leader.yml' % self.get_input('StackType'))),
+            UserData=Base64(leader_cloud_config),
             Tags=Tags(Name='MesosLeader')
         ))
 
@@ -154,35 +161,35 @@ class MesosLeader(utils.GTStackNode):
             RecordSets=[
                 r53.RecordSet(
                     'dnsZookeeper',
-                    Name='zookeeper.service.geotrellis-spark.internal.',
+                    Name='zookeeper.service.%s.' % self.get_input('PrivateHostedZoneName'),
                     Type='A',
                     TTL='60',
                     ResourceRecords=[GetAtt(mesos_leader_instance, 'PrivateIp')]
                 ),
                 r53.RecordSet(
                     'dnsMesosLeader',
-                    Name='mesos-leader.service.geotrellis-spark.internal.',
+                    Name='mesos-leader.service.%s.' % self.get_input('PrivateHostedZoneName'),
                     Type='A',
                     TTL='60',
                     ResourceRecords=[GetAtt(mesos_leader_instance, 'PrivateIp')]
                 ),
                 r53.RecordSet(
                     'dnsNameNode',
-                    Name='namenode.service.geotrellis-spark.internal.',
+                    Name='namenode.service.%s.' % self.get_input('PrivateHostedZoneName'),
                     Type='A',
                     TTL='60',
                     ResourceRecords=[GetAtt(mesos_leader_instance, 'PrivateIp')]
                 ),
                 r53.RecordSet(
                     'dnsAccumulo',
-                    Name='accumulo-leader.service.geotrellis-spark.internal.',
+                    Name='accumulo-leader.service.%s.' % self.get_input('PrivateHostedZoneName'),
                     Type='A',
                     TTL='60',
                     ResourceRecords=[GetAtt(mesos_leader_instance, 'PrivateIp')]
                 ),
                 r53.RecordSet(
                     'dnsMonitoring',
-                    Name='monitoring.service.geotrellis-spark.internal.',
+                    Name='monitoring.service.%s.' % self.get_input('PrivateHostedZoneName'),
                     Type='A',
                     TTL='60',
                     ResourceRecords=[GetAtt(mesos_leader_instance, 'PrivateIp')]

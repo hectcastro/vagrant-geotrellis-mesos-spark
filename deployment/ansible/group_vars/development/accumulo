@@ -1,10 +1,10 @@
 ---
 accumulo_mirror: "http://download.nextag.com/apache"
-accumulo_leader_host: "accumulo-leader.service.geotrellis-spark.internal"
+accumulo_leader_host: "accumulo-leader.service.{{ cluster_domain }}"
 accumulo_instance_name: "geotrellis-accumulo-cluster"
 accumulo_secret: "secret"
 
-hdfs_namenode_host: "namenode.service.geotrellis-spark.internal"
+hdfs_namenode_host: "namenode.service.{{ cluster_domain }}"
 hdfs_core_properties:
   - { name: "fs.defaultFS", value: "hdfs://{{ hdfs_namenode_host }}:{{ hdfs_namenode_port }}" }
 hdfs_namenode_properties:
